@@ -36,10 +36,11 @@ variable "size" {
 variable "ssh_keys" {
   description = "List of SSH IDs or fingerprints to enable. They must already exist in your DO account."
   type        = list(string)
+  default     = []
 }
 
 variable "ssh_key_file" {
-  description = "SSH key file to add to the droplet in addition to the \"ssh_keys\" variable."
+  description = "SSH public key file to add to the DO account."
   type        = string
   default     = ""
 }
@@ -47,5 +48,20 @@ variable "ssh_key_file" {
 variable "init_script" {
   description = "Initialization script to run"
   default     = "./init.sh"
+}
+
+variable "domain" {
+  description = "Domain to assign to droplet. If set, will automatically create an A record that points to the created droplet."
+  type        = string
+  default     = ""
+}
+
+variable "records" {
+  description = "DNS records to attach to the domain. Ignored if \"domain\" is empty (\"\")."
+  type = map(object({
+    type  = string
+    value = string
+    ttl   = number
+  }))
 }
 

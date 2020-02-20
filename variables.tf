@@ -63,5 +63,6 @@ variable "records" {
     value = string
     ttl   = number
   }))
+  default = {}
 }
 

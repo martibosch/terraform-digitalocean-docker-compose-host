@@ -50,9 +50,11 @@ Simple module to initialize an extendible `ubuntu-18-04-x64` droplet with `docke
 
 ## Outputs
 
-| Name           | Description               |
-| :------------- | :------------------------ |
-| `ipv4_address` | IP address of the droplet |
+| Name           | Description                  |
+| :------------- | :--------------------------- |
+| `ipv4_address` | IP address of the droplet.   |
+| `id`           | ID of the created droplet.   |
+| `name`         | Name of the created droplet. |
 
 ## Example<a name="example"></a>
 

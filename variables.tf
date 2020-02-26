@@ -57,8 +57,9 @@ variable "domain" {
 }
 
 variable "records" {
-  description = "DNS records to attach to the domain. Ignored if \"domain\" is empty (\"\")."
+  description = "DNS records to create. The key to the map is the \"name\" attribute. If \"value\"==\"droplet\" it will be assigned to the created droplet's ipv4_address."
   type = map(object({
+    domain = string
     type  = string
     value = string
     ttl   = number

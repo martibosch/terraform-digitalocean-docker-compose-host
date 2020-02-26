@@ -64,9 +64,9 @@ resource "digitalocean_domain" "default" {
 }
 
 resource "digitalocean_record" "default" {
-  for_each = var.domain != "" && length(var.records) > 0 ? var.records : {}
+  for_each = length(var.records) > 0 ? var.records : {}
 
-  domain = var.domain
+  domain = each.domain
   name   = each.key
   type   = each.value.type
   value  = each.value.type == "A" && each.value.value == "droplet" ? digitalocean_droplet.droplet.ipv4_address : each.value.value

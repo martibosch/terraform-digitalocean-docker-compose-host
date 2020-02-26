@@ -34,7 +34,7 @@ Simple module to initialize an extendible `ubuntu-18-04-x64` droplet with `docke
 | `ssh_key_file`                                        | SSH public key file to add to the DO account.                                                                  | `string`                                                                                                       | `""`               | no<sup>[1](#keyfile-note)</sup> |
 | `init_script`                                         | Initialization script to run                                                                                   | `string`                                                                                                       | `./init.sh`        | no                              |
 | `domain`                                              | Domain to assign to droplet. If set, will automatically create an A record that points to the created droplet. | `string`                                                                                                       | `""`               | no                              |
-| `records`<sup>[2](#record-note),[3](#name-note)</sup> | DNS records to attach to the domain. Ignored if `domain` is empty (`""`).                                      | `map(object({`<br>&nbsp;&nbsp;`type=string`<br>&nbsp;&nbsp;`value=string`<br>&nbsp;&nbsp;`ttl=number`<br>`}))` | `{}`               | no                              |
+| `records`<sup>[2](#record-note),[3](#name-note)</sup> |  DNS records to create. The key to the map is the `name` attribute. If `"value"`==`"droplet"` it will be assigned to the created droplets `ipv4_address`.                                     | `map(object({ domain=string, type=string, value=string, ttl=number}))` | `{}`               | no                              |
 
 
 1. <a name="keyfile-note"></a>: `remote-exec` will attempt to install `docker` through `ssh` with one of these keys. Provisioning will fail if
@@ -44,6 +44,9 @@ Simple module to initialize an extendible `ubuntu-18-04-x64` droplet with `docke
 2. <a name="record-note"></a>: Domain records that are of `type="A"` and the special value `value="droplet"` will point to the created droplet's `ipv4_address`, otherwise will be pointed to its `value` attribute.
 
 3. <a name="name-note"></a>: Note the `name` attribute to the <a target="_blank" rel="noopener noreferrer" href="https://developers.digitalocean.com/documentation/v2/#create-a-new-domain-record">DigitalOcean API</a> is passed in as the `map`'s key. See the [example](#example) for detailed usage.
+
+
+  description = "DNS records to create. The key to the map is the \"name\" attribute. If \"value\"==\"droplet\" it will be assigned to the created droplet's ipv4_address."
 
 ## Outputs
 
@@ -72,11 +75,13 @@ module "droplet" {
     domain = "example.com"
     records = {
         # subdomain.example.com CNAME
-        "subdomain.": {"type"="CNAME", "value"="@", "ttl"=7200},
+        "subdomain.": {"domain"="example.com", "type"="CNAME", "value"="@", "ttl"=7200},
         # subdomain2.example.com through an A record
-        "subdomain2.": {type="A", "value"="droplet", "ttl"=1800},
+        "subdomain2.": {"domain"="example.com", "type"="A", "value"="droplet", "ttl"=1800},
+        # subdomain3.otherdomain.com
+        "subdomain3.": {"domain"="otherdomain.com", "type"="A", "value"="0.0.0.0"}
         # wildcard
-        "*.": {"value"="@", "ttl"=3600, "type"="CNAME"},
+        "*.": {"domain"="example.com", "value"="@", "ttl"=3600, "type"="CNAME"},
     }
 }
 ```

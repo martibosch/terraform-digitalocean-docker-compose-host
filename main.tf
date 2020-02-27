@@ -2,28 +2,38 @@ provider "digitalocean" {
   token = var.do_token
 }
 
-resource "digitalocean_ssh_key" "main_key" {
-  count = var.ssh_key_file != "" ? 1 : 0
-
-  name       = regex("\\b{1}([\\w\\d-_.]+@.+)", file(var.ssh_key_file))[0]
-  public_key = file(var.ssh_key_file)
-}
-
 resource "digitalocean_droplet" "droplet" {
   image    = var.image
   name     = var.droplet_name
   region   = var.region
   tags     = var.tags
   size     = var.size
-  ssh_keys = coalescelist([digitalocean_ssh_key.main_key[0].fingerprint], var.ssh_keys)
+  ssh_keys = var.ssh_keys
 
-  depends_on = [
-    digitalocean_droplet.droplet,
-  ]
+  provisioner "remote-exec" {
+    connection {
+      type = "ssh"
+      user = "root"
+      host = self.ipv4_address
+    }
+    inline = [
+      "useradd -m -s /bin/bash -G sudo -p $(head /dev/urandom | tr -dc a-zA-Z0-9 | head -c 10 | openssl passwd -crypt -stdin) ${var.user}",
+      "mkdir -p /home/${var.user}/.ssh",
+      "cp /root/.ssh/authorized_keys /home/${var.user}/.ssh/authorized_keys",
+      "chown -R ${var.user}:${var.user} /home/${var.user}/.ssh",
+      "chmod 700 /home/${var.user}/.ssh",
+      "chmod 600 /home/${var.user}/.ssh/authorized_keys",
+      "sed -i 's/.*PubkeyAuthentication.*/PubkeyAuthentication yes' /etc/ssh/sshd_config",
+      "sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no' /etc/ssh/sshd_config",
+      "sed -i 's/.*PermitRootLogin.*/PermitRootLogin no' /etc/ssh/sshd_config",
+      "systemctl restart sshd",
+      "echo '${var.user} ALL=(ALL) NOPASSWD:ALL' | EDITOR='tee -a' visudo",
+    ]
+  }
 
   connection {
     type = "ssh"
-    user = "root"
+    user = var.user
     host = self.ipv4_address
   }
 
@@ -42,7 +52,7 @@ resource "digitalocean_droplet" "droplet" {
       "sudo apt-get update",
       "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io",
       "sudo service docker start",
-      "sudo usermod -aG docker $USER",
+      "sudo usermod -aG docker ${var.user}",
       "sudo curl -L \"https://github.com/docker/compose/releases/download/1.25.3/docker-compose-$(uname -s)-$(uname -m)\" -o /usr/local/bin/docker-compose",
       "sudo chmod +x /usr/local/bin/docker-compose",
     ]
@@ -66,7 +76,7 @@ resource "digitalocean_domain" "default" {
 resource "digitalocean_record" "default" {
   for_each = length(var.records) > 0 ? var.records : {}
 
-  domain = each.domain
+  domain = each.value.domain
   name   = each.key
   type   = each.value.type
   value  = each.value.type == "A" && each.value.value == "droplet" ? digitalocean_droplet.droplet.ipv4_address : each.value.value

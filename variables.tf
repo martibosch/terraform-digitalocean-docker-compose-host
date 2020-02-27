@@ -39,12 +39,6 @@ variable "ssh_keys" {
   default     = []
 }
 
-variable "ssh_key_file" {
-  description = "SSH public key file to add to the DO account."
-  type        = string
-  default     = ""
-}
-
 variable "init_script" {
   description = "Initialization script to run"
   default     = "./init.sh"
@@ -60,10 +54,16 @@ variable "records" {
   description = "DNS records to create. The key to the map is the \"name\" attribute. If \"value\"==\"droplet\" it will be assigned to the created droplet's ipv4_address."
   type = map(object({
     domain = string
-    type  = string
-    value = string
-    ttl   = number
+    type   = string
+    value  = string
+    ttl    = number
   }))
   default = {}
 }
 
+variable "user" {
+  type        = string
+  description = "Username of user to be added to the droplet."
+  default     = "ubuntu"
+
+}

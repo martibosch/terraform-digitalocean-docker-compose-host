@@ -23,9 +23,9 @@ resource "digitalocean_droplet" "droplet" {
       "chown -R ${var.user}:${var.user} /home/${var.user}/.ssh",
       "chmod 700 /home/${var.user}/.ssh",
       "chmod 600 /home/${var.user}/.ssh/authorized_keys",
-      "sed -i 's/.*PubkeyAuthentication.*/PubkeyAuthentication yes' /etc/ssh/sshd_config",
-      "sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no' /etc/ssh/sshd_config",
-      "sed -i 's/.*PermitRootLogin.*/PermitRootLogin no' /etc/ssh/sshd_config",
+      "sed -i 's/.*PubkeyAuthentication.*/PubkeyAuthentication yes/g' /etc/ssh/sshd_config",
+      "sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no/g' /etc/ssh/sshd_config",
+      "sed -i 's/.*PermitRootLogin.*/PermitRootLogin no/g' /etc/ssh/sshd_config",
       "systemctl restart sshd",
       "echo '${var.user} ALL=(ALL) NOPASSWD:ALL' | EDITOR='tee -a' visudo",
     ]

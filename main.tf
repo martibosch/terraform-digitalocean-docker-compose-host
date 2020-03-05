@@ -76,9 +76,10 @@ resource "digitalocean_domain" "default" {
 resource "digitalocean_record" "default" {
   for_each = length(var.records) > 0 ? var.records : {}
 
-  domain = each.value.domain
-  name   = each.key
-  type   = each.value.type
-  value  = each.value.type == "A" && each.value.value == "droplet" ? digitalocean_droplet.droplet.ipv4_address : each.value.value
-  ttl    = each.value.ttl >= 0 ? each.value.ttl : 3600
+  depends_on = [digitalocean_domain.default]
+  domain     = each.value.domain
+  name       = each.key
+  type       = each.value.type
+  value      = each.value.type == "A" && each.value.value == "droplet" ? digitalocean_droplet.droplet.ipv4_address : each.value.value
+  ttl        = each.value.ttl >= 0 ? each.value.ttl : 3600
 }

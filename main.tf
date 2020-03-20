@@ -12,9 +12,10 @@ resource "digitalocean_droplet" "droplet" {
 
   provisioner "remote-exec" {
     connection {
-      type = "ssh"
-      user = "root"
-      host = self.ipv4_address
+      type        = "ssh"
+      user        = "root"
+      host        = self.ipv4_address
+      private_key = var.ssh_private_key != "" ? file(var.ssh_private_key) : ""
     }
     inline = [
       "useradd -m -s /bin/bash -G sudo -p $(head /dev/urandom | tr -dc a-zA-Z0-9 | head -c 10 | openssl passwd -crypt -stdin) ${var.user}",
@@ -32,9 +33,10 @@ resource "digitalocean_droplet" "droplet" {
   }
 
   connection {
-    type = "ssh"
-    user = var.user
-    host = self.ipv4_address
+    type        = "ssh"
+    user        = var.user
+    host        = self.ipv4_address
+    private_key = var.ssh_private_key != "" ? file(var.ssh_private_key) : ""
   }
 
   # copy init script

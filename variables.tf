@@ -67,3 +67,8 @@ variable "user" {
   default     = "ubuntu"
 
 }
+variable "ssh_private_key" {
+  description = "Path to ssh private key to access the server."
+  type        = string
+  default     = ""
+}

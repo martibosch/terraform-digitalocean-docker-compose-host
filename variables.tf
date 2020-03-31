@@ -68,7 +68,7 @@ variable "user" {
 
 }
 variable "ssh_private_key" {
-  description = "Path to ssh private key to access the server."
+  description = "SSH private key to access the server. (\"-----BEGIN OPENSSH PRIVATE KEY-----\" ...and so forth)."
   type        = string
   default     = ""
 }

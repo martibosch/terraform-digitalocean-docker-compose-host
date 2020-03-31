@@ -1,11 +1,11 @@
 output "id" {
   description = "ID of the created droplet."
-  value = digitalocean_droplet.droplet.id
+  value       = digitalocean_droplet.droplet.id
 }
 
 output "name" {
   description = "Name of the created droplet."
-  value = digitalocean_droplet.droplet.name
+  value       = digitalocean_droplet.droplet.name
 }
 
 output "ipv4_address" {

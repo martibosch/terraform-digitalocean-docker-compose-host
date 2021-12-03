@@ -72,3 +72,9 @@ variable "ssh_private_key" {
   type        = string
   default     = ""
 }
+
+variable "docker_compose_version" {
+  description = "Version of docker-compose"
+  type        = string
+  default     = "v2.2.2"
+}

@@ -17,7 +17,7 @@ variable "tags" {
 variable "image" {
   description = "Image slug for the desired image. See 'available-images.txt' for a list."
   type        = string
-  default     = "ubuntu-18-04-x64"
+  default     = "ubuntu-20-04-x64"
 
 }
 

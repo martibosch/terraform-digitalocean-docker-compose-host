@@ -48,6 +48,16 @@ resource "digitalocean_droplet" "droplet" {
     private_key = var.ssh_private_key
   }
 
+  # copy app directory
+  provisioner "remote-exec" {
+    inline = ["mkdir -p ${var.droplet_app_dir}"]
+  }
+
+  provisioner "file" {
+    source      = "${var.compose_app_dir}/"
+    destination = var.droplet_app_dir
+  }
+
   # copy init script
   provisioner "file" {
     source      = var.init_script

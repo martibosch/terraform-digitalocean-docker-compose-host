@@ -74,7 +74,18 @@ variable "ssh_private_key" {
 }
 
 variable "docker_compose_version" {
-  description = "Version of docker-compose"
+  description = "Version of docker-compose."
   type        = string
   default     = "v2.2.2"
+}
+
+variable "compose_app_dir" {
+  description = "Local path to the application directory from which docker-compose will be exectued."
+  type        = string
+}
+
+variable "droplet_app_dir" {
+  description = "Path in the droplet where the docker-compose application will be copied."
+  type        = string
+  default     = "~/app"
 }

@@ -48,15 +48,16 @@ resource "digitalocean_droplet" "droplet" {
     private_key = var.ssh_private_key
   }
 
-  # copy app directory
+  # make app directory
   provisioner "remote-exec" {
     inline = ["mkdir -p ${var.droplet_app_dir}"]
   }
 
-  provisioner "file" {
-    source      = "${var.compose_app_dir}/"
-    destination = var.droplet_app_dir
-  }
+  # copy app directory
+  # provisioner "file" {
+  #   source      = "${var.compose_app_dir}/"
+  #   destination = var.droplet_app_dir
+  # }
 
   # copy init script
   provisioner "file" {
@@ -67,6 +68,7 @@ resource "digitalocean_droplet" "droplet" {
   provisioner "remote-exec" {
     inline = [
       "sudo apt-get update",
+      "sudo apt-get install jq", # for pathsync module
       "sudo apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common",
       "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -",
       "sudo add-apt-repository \"deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable\"",
@@ -86,6 +88,18 @@ resource "digitalocean_droplet" "droplet" {
     ]
   }
 
+}
+
+# sync app directory - see https://github.com/hashicorp/terraform/issues/6065
+module "droplet_pathsync" {
+  source = "./utils"
+
+  local_path  = "${var.compose_app_dir}/"
+  remote_path = var.droplet_app_dir
+
+  host        = digitalocean_droplet.droplet.ipv4_address
+  user        = var.user
+  private_key = var.ssh_private_key
 }
 
 resource "digitalocean_domain" "default" {

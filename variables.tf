@@ -87,5 +87,5 @@ variable "compose_app_dir" {
 variable "droplet_app_dir" {
   description = "Path in the droplet where the docker-compose application will be copied."
   type        = string
-  default     = "~/app"
+  default     = "/home/ubuntu/app"
 }

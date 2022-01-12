@@ -61,7 +61,7 @@ resource "digitalocean_droplet" "droplet" {
   # copy init script
   provisioner "file" {
     source      = var.init_script
-    destination = "~/init.sh"
+    destination = "/home/${var.user}/init.sh"
   }
 
   provisioner "remote-exec" {

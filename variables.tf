@@ -45,9 +45,15 @@ variable "init_script" {
 }
 
 variable "domain" {
-  description = "Domain to assign to droplet. If set, will automatically create an A record that points to the created droplet."
+  description = "Domain."
   type        = string
   default     = ""
+}
+
+variable "domain_link_droplet" {
+  description = "If true, will automatically create an A record that points to the created droplet."
+  type        = bool
+  default     = true
 }
 
 variable "records" {

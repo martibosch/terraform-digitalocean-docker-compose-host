@@ -91,7 +91,7 @@ resource "digitalocean_droplet" "droplet" {
 resource "digitalocean_domain" "default" {
   count      = var.domain != "" ? 1 : 0
   name       = var.domain
-  ip_address = digitalocean_droplet.droplet.ipv4_address
+  ip_address = var.domain != "" ? digitalocean_droplet.droplet.ipv4_address : null
 }
 
 resource "digitalocean_record" "default" {

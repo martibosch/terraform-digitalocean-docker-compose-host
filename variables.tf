@@ -50,12 +50,6 @@ variable "domain" {
   default     = ""
 }
 
-variable "domain_link_droplet" {
-  description = "If true, will automatically create an A record that points to the created droplet."
-  type        = bool
-  default     = true
-}
-
 variable "records" {
   description = "DNS records to create. The key to the map is the \"name\" attribute. If \"value\"==\"droplet\" it will be assigned to the created droplet's ipv4_address."
   type = map(object({

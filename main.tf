@@ -11,35 +11,24 @@ provider "digitalocean" {
   token = var.do_token
 }
 
+data "template_file" "cloud-init-yaml" {
+  template = file("${path.module}/files/cloud-init.yml")
+  vars = {
+    user                   = var.user
+    init_ssh_public_key    = var.ssh_public_key
+    docker_compose_version = var.docker_compose_version
+  }
+}
+
 resource "digitalocean_droplet" "droplet" {
   image    = var.image
   name     = var.droplet_name
   region   = var.region
   tags     = var.tags
   size     = var.size
-  ssh_keys = var.ssh_keys
+  ssh_keys = [var.ssh_key]
 
-  provisioner "remote-exec" {
-    connection {
-      type        = "ssh"
-      user        = "root"
-      host        = self.ipv4_address
-      private_key = var.ssh_private_key
-    }
-    inline = [
-      "useradd -m -s /bin/bash -G sudo -p $(head /dev/urandom | tr -dc a-zA-Z0-9 | head -c 10 | openssl passwd -crypt -stdin) ${var.user}",
-      "mkdir -p /home/${var.user}/.ssh",
-      "cp /root/.ssh/authorized_keys /home/${var.user}/.ssh/authorized_keys",
-      "chown -R ${var.user}:${var.user} /home/${var.user}/.ssh",
-      "chmod 700 /home/${var.user}/.ssh",
-      "chmod 600 /home/${var.user}/.ssh/authorized_keys",
-      "sed -i 's/.*PubkeyAuthentication.*/PubkeyAuthentication yes/g' /etc/ssh/sshd_config",
-      "sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no/g' /etc/ssh/sshd_config",
-      "sed -i 's/.*PermitRootLogin.*/PermitRootLogin no/g' /etc/ssh/sshd_config",
-      "systemctl restart sshd",
-      "echo '${var.user} ALL=(ALL) NOPASSWD:ALL' | EDITOR='tee -a' visudo",
-    ]
-  }
+  user_data = data.template_file.cloud-init-yaml.rendered
 
   connection {
     type        = "ssh"
@@ -54,7 +43,7 @@ resource "digitalocean_droplet" "droplet" {
   }
 
   provisioner "file" {
-    source      = "${var.compose_app_dir}/"
+    source      = var.compose_app_dir
     destination = var.droplet_app_dir
   }
 
@@ -62,21 +51,6 @@ resource "digitalocean_droplet" "droplet" {
   provisioner "file" {
     source      = var.init_script
     destination = "/home/${var.user}/init.sh"
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "sudo apt-get update",
-      "sudo apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common",
-      "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -",
-      "sudo add-apt-repository \"deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable\"",
-      "sudo apt-get update",
-      "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io",
-      "sudo service docker start",
-      "sudo usermod -aG docker ${var.user}",
-      "sudo curl -L \"https://github.com/docker/compose/releases/download/${var.docker_compose_version}/docker-compose-$(uname -s)-$(uname -m)\" -o /usr/local/bin/docker-compose",
-      "sudo chmod +x /usr/local/bin/docker-compose",
-    ]
   }
 
   provisioner "remote-exec" {

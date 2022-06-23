@@ -33,10 +33,19 @@ variable "size" {
   default     = "s-1vcpu-1gb"
 }
 
-variable "ssh_keys" {
-  description = "List of SSH IDs or fingerprints to enable. They must already exist in your DO account."
-  type        = list(string)
-  default     = []
+variable "ssh_key" {
+  description = "SSH ID or fingerprint to enable. It must already exist in your DO account."
+  type        = string
+}
+
+variable "ssh_public_key" {
+  description = "Content of the SSH public key"
+  type        = string
+}
+
+variable "ssh_private_key" {
+  description = "Content of the SSH private key"
+  type        = string
 }
 
 variable "init_script" {
@@ -66,11 +75,6 @@ variable "user" {
   description = "Username of user to be added to the droplet."
   default     = "ubuntu"
 
-}
-variable "ssh_private_key" {
-  description = "SSH private key to access the server. (\"-----BEGIN OPENSSH PRIVATE KEY-----\" ...and so forth)."
-  type        = string
-  default     = ""
 }
 
 variable "docker_compose_version" {

@@ -63,8 +63,8 @@ resource "digitalocean_droplet" "droplet" {
 }
 
 resource "digitalocean_domain" "default" {
-  count      = var.domain != "" ? 1 : 0
-  name       = var.domain
+  count = var.domain != "" ? 1 : 0
+  name  = var.domain
 }
 
 resource "digitalocean_record" "default" {

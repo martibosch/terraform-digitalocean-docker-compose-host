@@ -13,3 +13,7 @@ output "ipv4_address" {
   value       = digitalocean_droplet.droplet.ipv4_address
 }
 
+output "urn" {
+  description = "URN of the created droplet."
+  value       = digitalocean_droplet.droplet.urn
+}
